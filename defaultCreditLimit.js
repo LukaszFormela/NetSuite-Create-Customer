@@ -14,16 +14,31 @@ define(['N/error'], function(error) {
      * Function that throws error if field value 
      * is higher tham maximum credit value
      * 
+     * @param {object} context
      * @param {integer} enteredValue Currently entered value of credit limit
      */
-    function checkValue(enteredValue) {
+    function checkValue(context, enteredValue) {
         if (enteredValue > creditLimit) {
+            setCreditLimit(context);
             throw error.create({
                 name: 'CRE_LIM_TOO_HIGH',
                 message: 'Credit limit value can not exceed 1000'
             });
         }
         return true;
+    }
+
+    /**
+     * Sets credit limit to defined value
+     * 
+     * @param {object} context
+     */
+    function setCreditLimit(context) {
+        var currentRecord = context.currentRecord;
+        currentRecord.setValue({
+            fieldId: 'creditlimit',
+            value: creditLimit
+        });
     }
 
     /**
@@ -36,11 +51,7 @@ define(['N/error'], function(error) {
         if (context.mode !== 'create') {
             return;
         }
-        var currentRecord = context.currentRecord;
-        currentRecord.setValue({
-            fieldId: 'creditlimit',
-            value: creditLimit
-        });
+        setCreditLimit(context);
     }
 
     /**
@@ -57,9 +68,9 @@ define(['N/error'], function(error) {
 
         // For the purpose of this task, we'll parse
         // entered value to integer
-        var creditLimitValueInt = parseInt(creditLimitValue);
+        var creditLimitValueInt = parseFloat(creditLimitValue);
         
-        checkValue(creditLimitValueInt);
+        checkValue(context, creditLimitValueInt);
         return true;
     }
 
@@ -79,7 +90,7 @@ define(['N/error'], function(error) {
 
         // For the purpose of this task, we'll parse
         // entered value to integer
-        var creditLimitValueInt = parseInt(creditLimitValue);
+        var creditLimitValueInt = parseFloat(creditLimitValue);
 
         checkValue(creditLimitValueInt);
         return true;
